@@ -1,57 +1,88 @@
 package com.douqz.core;
 
+import com.douqz.exception.NotSupportCurrentlyException;
+import com.douqz.util.ValuesEnumerator;
+import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.nio.charset.StandardCharsets;
 import java.security.Principal;
-import java.util.Collection;
-import java.util.Enumeration;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
 
 /**
+ * 默认的 HttpServletRequest 实现
+ *
  * @author yui
  */
 public class DefaultRequest implements HttpServletRequest {
 
     private final FullHttpRequest request;
+    private int port;
+    private final Map<String, List<String>> headers = new HashMap<>();
 
     public DefaultRequest(FullHttpRequest request) {
         this.request = request;
+
+        // 解析请求头
+        HttpHeaders httpHeaders = this.request.headers();
+        List<Map.Entry<String, String>> entries = httpHeaders.entries();
+        for (Map.Entry<String, String> ent : entries) {
+            String key = ent.getKey();
+            String val = ent.getValue();
+            if (headers.containsKey(key)) {
+                headers.get(key).add(val);
+            } else {
+                ArrayList<String> list = new ArrayList<>();
+                list.add(val);
+                headers.put(key, list);
+            }
+        }
+
+
+        System.out.println();
+
     }
 
     @Override
     public String getAuthType() {
-        return null;
+        throw new NotSupportCurrentlyException();
     }
 
     @Override
     public Cookie[] getCookies() {
-        return new Cookie[0];
+        throw new NotSupportCurrentlyException();
     }
 
     @Override
     public long getDateHeader(String name) {
-        return 0;
+        throw new NotSupportCurrentlyException();
     }
 
     @Override
     public String getHeader(String name) {
-        return null;
+        if (!this.headers.containsKey(name)) {
+            return null;
+        }
+        return this.headers.get(name).get(0);
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        return null;
+        if (!this.headers.containsKey(name)) {
+            return ValuesEnumerator.emptyEnumerator();
+        }
+        return new ValuesEnumerator<>(this.headers.get(name));
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        return null;
+        throw new NotSupportCurrentlyException();
     }
 
     @Override
@@ -226,6 +257,9 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public String getParameter(String name) {
+        ByteBuf content = this.request.content();
+        String s = content.toString(StandardCharsets.UTF_8);
+        // Util.printByteBuf(content);
         return null;
     }
 
@@ -246,7 +280,7 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public String getProtocol() {
-        return null;
+        return this.request.protocolVersion().protocolName();
     }
 
     @Override
@@ -261,7 +295,7 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public int getServerPort() {
-        return 0;
+        return this.port;
     }
 
     @Override
@@ -331,7 +365,7 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public int getLocalPort() {
-        return 0;
+        return this.port;
     }
 
     @Override
@@ -367,5 +401,14 @@ public class DefaultRequest implements HttpServletRequest {
     @Override
     public DispatcherType getDispatcherType() {
         return null;
+    }
+
+    /**
+     * Set the port number of the server to process this request.
+     *
+     * @param port The server port
+     */
+    public void setServerPort(int port) {
+        this.port = port;
     }
 }

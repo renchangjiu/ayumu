@@ -28,9 +28,10 @@ public class HttpServer {
     private NioEventLoopGroup worker;
     private Channel channel;
     private Context context;
+    protected int port;
 
     public void start(int port) throws InterruptedException {
-
+        this.port = port;
         boss = new NioEventLoopGroup();
         worker = new NioEventLoopGroup();
 
@@ -75,5 +76,9 @@ public class HttpServer {
             this.worker.shutdownGracefully();
             this.boss.shutdownGracefully();
         });
+    }
+
+    public int getPort() {
+        return port;
     }
 }

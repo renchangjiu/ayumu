@@ -3,6 +3,9 @@ package com.douqz;
 import com.douqz.core.DefaultContext;
 import com.douqz.servlet.TestServlet1;
 import com.douqz.servlet.TestServlet2;
+import com.douqz.util.Util;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import jakarta.servlet.GenericServlet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;
@@ -51,6 +54,9 @@ public class AppTest {
 
     @Test
     public void testAyumu() throws Exception {
+        // ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
+        // buffer.writeByte('T');
+        // Util.printByteBuf(buffer);
         HttpServer server = new HttpServer();
         DefaultContext context = new DefaultContext();
         server.setContext(context);
@@ -59,4 +65,6 @@ public class AppTest {
         server.start(8080);
         Thread.currentThread().join();
     }
+
+
 }

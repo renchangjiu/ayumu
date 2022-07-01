@@ -1,5 +1,7 @@
 package com.douqz.core;
 
+import io.netty.buffer.ByteBuf;
+import io.netty.handler.codec.http.FullHttpResponse;
 import jakarta.servlet.ServletOutputStream;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -13,6 +15,17 @@ import java.util.Locale;
  * @author yui
  */
 public class DefaultResponse implements HttpServletResponse {
+    private final FullHttpResponse resp;
+    private final DefaultPrintWriter writer;
+    private final DefaultServletOutputStream outputStream;
+
+    public DefaultResponse(FullHttpResponse resp) {
+        this.resp = resp;
+        ByteBuf content = this.resp.content();
+        this.writer = new DefaultPrintWriter(new DefaultWriter(content));
+        this.outputStream = new DefaultServletOutputStream(content);
+    }
+
     @Override
     public void addCookie(Cookie cookie) {
 
@@ -130,12 +143,12 @@ public class DefaultResponse implements HttpServletResponse {
 
     @Override
     public ServletOutputStream getOutputStream() throws IOException {
-        return null;
+        return this.outputStream;
     }
 
     @Override
     public PrintWriter getWriter() throws IOException {
-        return null;
+        return this.writer;
     }
 
     @Override

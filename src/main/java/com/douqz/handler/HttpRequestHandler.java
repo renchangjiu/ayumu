@@ -5,18 +5,13 @@ import com.douqz.core.Context;
 import com.douqz.core.DefaultRequest;
 import com.douqz.core.DefaultResponse;
 import com.douqz.core.Wrapper;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.*;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletRequestWrapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
-
-import java.nio.charset.StandardCharsets;
-import java.util.Collection;
 
 /**
  * @author yui
@@ -32,28 +27,35 @@ public class HttpRequestHandler extends SimpleChannelInboundHandler<FullHttpRequ
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
-        String uri = msg.uri();
-        HttpMethod method = msg.method();
-        String httpMethod = method.name();
-        Context context = server.getContext();
-        Wrapper child = context.findMatchChild(uri);
-        FullHttpResponse resp = null;
-        if (child != null) {
-            // request
-            HttpServletRequest servletRequest = new DefaultRequest(msg);
-            HttpServletResponse servletResponse = new DefaultResponse();
-            child.getServlet().service(servletRequest, servletResponse);
-        } else {
-            resp = new DefaultFullHttpResponse(
-                    msg.protocolVersion(),
-                    HttpResponseStatus.NOT_FOUND,
-                    ctx.alloc().buffer()
-            );
-            // 设置头信息
-            // resp.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/html; charset=UTF-8");
-            //resp.headers().set(HttpHeaderNames.CONTENT_TYPE, "text/plain; charset=UTF-8");
-        }
+        FullHttpResponse resp = this.buildResponse(ctx, msg);
         ctx.writeAndFlush(resp).addListener(ChannelFutureListener.CLOSE);
         log.info("{}", msg);
+    }
+
+    private FullHttpResponse buildResponse(ChannelHandlerContext ctx, FullHttpRequest msg) throws Exception {
+        String uri = msg.uri();
+        Context context = server.getContext();
+        Wrapper wrapper = context.findMatchChild(uri);
+        FullHttpResponse resp = new DefaultFullHttpResponse(
+                msg.protocolVersion(),
+                HttpResponseStatus.OK,
+                ctx.alloc().buffer()
+        );
+        HttpHeaders headers = resp.headers();
+        // 设置一些默认的请求头
+        headers.add(HttpHeaderNames.CONTENT_TYPE, "text/html;charset=utf-8");
+
+
+        if (wrapper != null) {
+            DefaultRequest req = new DefaultRequest(msg);
+            HttpServletResponse servletResponse = new DefaultResponse(resp);
+            req.setServerPort(server.getPort());
+            wrapper.getServlet().service(req, servletResponse);
+        } else {
+            resp.setStatus(HttpResponseStatus.NOT_FOUND);
+        }
+        int contentLength = resp.content().readableBytes();
+        headers.add(HttpHeaderNames.CONTENT_LENGTH, contentLength);
+        return resp;
     }
 }

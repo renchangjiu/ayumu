@@ -5,6 +5,7 @@ package com.douqz.exception;
  */
 public class NoneWebServletAnnotationException extends RuntimeException {
 
+
     public NoneWebServletAnnotationException(String message) {
         super(message);
     }
