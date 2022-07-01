@@ -1,49 +1,47 @@
 package com.douqz.util;
 
 
-import java.util.Collections;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 使用
+ *
  * @author yui
  */
-public class ValuesEnumerator<T> implements Enumeration<T> {
+public class ValuesEnumerator<String> implements Enumeration<String> {
+
     private int pos;
+    private final int size;
 
-    private final List<T> list;
+    private final String name;
 
-    public ValuesEnumerator(List<T> list) {
-        this.pos = -1;
-        this.list = list;
+    private final List<Map.Entry<String, String>> list;
+
+    public ValuesEnumerator(List<Map.Entry<String, String>> headers, String name) {
+        this.pos = 0;
+        this.name = name;
+        this.list = headers;
+        this.size = headers.size();
     }
 
-    public static <T> ValuesEnumerator<T> emptyEnumerator() {
-        return new ValuesEnumerator<>(Collections.emptyList());
-    }
-
-    private void findNext() {
-        // for (this.next = null; this.pos < this.size; ++this.pos) {
-        //     MessageBytes n1 = this.headers.getName(this.pos);
-        //     if (n1.equalsIgnoreCase(this.name)) {
-        //         this.next = this.headers.getValue(this.pos);
-        //         break;
-        //     }
-        // }
-        // if (pos < size) {
-        //     return next
-        // }
-        //
-        // ++this.pos;
-    }
 
     public boolean hasMoreElements() {
-        return this.list.isEmpty() || this.pos < this.list.size();
+        if (this.list.isEmpty() || this.pos >= this.size) {
+            return false;
+        }
+        for (int i = pos; i < size; i++) {
+            String key = this.list.get(i).getKey();
+            if (key.equals(this.name)) {
+                return true;
+            }
+            this.pos++;
+        }
+        return false;
     }
 
-    public T nextElement() {
-        this.pos++;
-        return this.list.get(this.pos);
+    public String nextElement() {
+        return this.list.get(this.pos++).getValue();
     }
 }

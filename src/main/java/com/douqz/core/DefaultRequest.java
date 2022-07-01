@@ -4,7 +4,6 @@ import com.douqz.exception.NotSupportCurrentlyException;
 import com.douqz.util.ValuesEnumerator;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpHeaders;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
@@ -23,26 +22,17 @@ import java.util.*;
 public class DefaultRequest implements HttpServletRequest {
 
     private final FullHttpRequest request;
+
+    private final List<Map.Entry<String, String>> headers;
+
     private int port;
-    private final Map<String, List<String>> headers = new HashMap<>();
+
 
     public DefaultRequest(FullHttpRequest request) {
         this.request = request;
 
         // 解析请求头
-        HttpHeaders httpHeaders = this.request.headers();
-        List<Map.Entry<String, String>> entries = httpHeaders.entries();
-        for (Map.Entry<String, String> ent : entries) {
-            String key = ent.getKey();
-            String val = ent.getValue();
-            if (headers.containsKey(key)) {
-                headers.get(key).add(val);
-            } else {
-                ArrayList<String> list = new ArrayList<>();
-                list.add(val);
-                headers.put(key, list);
-            }
-        }
+        this.headers = this.request.headers().entries();
 
 
         System.out.println();
@@ -66,18 +56,17 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public String getHeader(String name) {
-        if (!this.headers.containsKey(name)) {
-            return null;
+        for (Map.Entry<String, String> ent : headers) {
+            if (ent.getKey().equals(name)) {
+                return ent.getValue();
+            }
         }
-        return this.headers.get(name).get(0);
+        return null;
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        if (!this.headers.containsKey(name)) {
-            return ValuesEnumerator.emptyEnumerator();
-        }
-        return new ValuesEnumerator<>(this.headers.get(name));
+        return new ValuesEnumerator<>(this.headers, name);
     }
 
     @Override
@@ -87,7 +76,11 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public int getIntHeader(String name) {
-        return 0;
+        String val = this.getHeader(name);
+        if (val == null) {
+            return -1;
+        }
+        return Integer.parseInt(val);
     }
 
     @Override

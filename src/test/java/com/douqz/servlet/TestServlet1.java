@@ -35,7 +35,10 @@ public class TestServlet1 extends HttpServlet {
         String a = req.getParameter("a");
         PrintWriter writer = resp.getWriter();
         Enumeration<String> h1 = req.getHeaders("h1");
-
+        while (h1.hasMoreElements()) {
+            String next = h1.nextElement();
+            System.out.println(next);
+        }
         int serverPort = req.getServerPort();
         int localPort = req.getLocalPort();
         writer.write("测试1-中文-Get-" + new Date());
