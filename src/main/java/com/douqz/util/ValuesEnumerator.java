@@ -10,16 +10,16 @@ import java.util.Map;
  *
  * @author yui
  */
-public class ValuesEnumerator<String> implements Enumeration<String> {
+public class ValuesEnumerator<T> implements Enumeration<T> {
 
     private int pos;
     private final int size;
 
     private final String name;
 
-    private final List<Map.Entry<String, String>> list;
+    private final List<Map.Entry<String, T>> list;
 
-    public ValuesEnumerator(List<Map.Entry<String, String>> headers, String name) {
+    public ValuesEnumerator(List<Map.Entry<String, T>> headers, String name) {
         this.pos = 0;
         this.name = name;
         this.list = headers;
@@ -33,7 +33,7 @@ public class ValuesEnumerator<String> implements Enumeration<String> {
         }
         for (int i = pos; i < size; i++) {
             String key = this.list.get(i).getKey();
-            if (key.equals(this.name)) {
+            if (key.equalsIgnoreCase(this.name)) {
                 return true;
             }
             this.pos++;
@@ -41,7 +41,7 @@ public class ValuesEnumerator<String> implements Enumeration<String> {
         return false;
     }
 
-    public String nextElement() {
+    public T nextElement() {
         return this.list.get(this.pos++).getValue();
     }
 }

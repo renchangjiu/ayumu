@@ -1,16 +1,16 @@
 package com.douqz.core;
 
 import com.douqz.exception.NotSupportCurrentlyException;
+import com.douqz.util.Parameters;
 import com.douqz.util.ValuesEnumerator;
-import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.http.FullHttpRequest;
+import io.netty.handler.codec.http.HttpHeaderNames;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
 import java.security.Principal;
 import java.util.*;
 
@@ -27,6 +27,9 @@ public class DefaultRequest implements HttpServletRequest {
 
     private int port;
 
+    private final ServletInputStream inputStream;
+
+    private final Parameters parameters;
 
     public DefaultRequest(FullHttpRequest request) {
         this.request = request;
@@ -34,8 +37,10 @@ public class DefaultRequest implements HttpServletRequest {
         // 解析请求头
         this.headers = this.request.headers().entries();
 
+        // 解析请求体
+        this.parameters = new Parameters(this.request.content(), this.getContentType());
 
-        System.out.println();
+        this.inputStream = new DefaultServletInputStream(this.request.content(), this.getContentLength());
 
     }
 
@@ -57,7 +62,7 @@ public class DefaultRequest implements HttpServletRequest {
     @Override
     public String getHeader(String name) {
         for (Map.Entry<String, String> ent : headers) {
-            if (ent.getKey().equals(name)) {
+            if (ent.getKey().equalsIgnoreCase(name)) {
                 return ent.getValue();
             }
         }
@@ -230,45 +235,46 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public int getContentLength() {
-        return 0;
+        return this.request.headers().getInt(HttpHeaderNames.CONTENT_LENGTH, -1);
     }
 
     @Override
     public long getContentLengthLong() {
-        return 0;
+        String len = this.request.headers().get(HttpHeaderNames.CONTENT_LENGTH);
+        if (len == null) {
+            return -1;
+        }
+        return Long.parseLong(len);
     }
 
     @Override
     public String getContentType() {
-        return null;
+        return this.getHeader(HttpHeaderNames.CONTENT_TYPE.toString());
     }
 
     @Override
-    public ServletInputStream getInputStream() throws IOException {
-        return null;
+    public ServletInputStream getInputStream() {
+        return this.inputStream;
     }
 
     @Override
     public String getParameter(String name) {
-        ByteBuf content = this.request.content();
-        String s = content.toString(StandardCharsets.UTF_8);
-        // Util.printByteBuf(content);
-        return null;
+        return this.parameters.getParameter(name);
     }
 
     @Override
     public Enumeration<String> getParameterNames() {
-        return null;
+        return this.parameters.getParameterNames();
     }
 
     @Override
     public String[] getParameterValues(String name) {
-        return new String[0];
+        return this.parameters.getParameterValues(name);
     }
 
     @Override
     public Map<String, String[]> getParameterMap() {
-        return null;
+        return this.parameters.getParameterMap();
     }
 
     @Override

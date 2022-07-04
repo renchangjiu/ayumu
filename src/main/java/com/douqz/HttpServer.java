@@ -16,12 +16,14 @@ import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import jakarta.servlet.Servlet;
+import lombok.extern.slf4j.Slf4j;
 
 import java.net.InetSocketAddress;
 
 /**
  * @author yui
  */
+@Slf4j
 public class HttpServer {
     private static final LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
     private NioEventLoopGroup boss;
@@ -54,7 +56,9 @@ public class HttpServer {
                 .bind(new InetSocketAddress(port))
                 .sync()
                 .channel();
+        log.info("Starting ProtocolHandler ['http-netty-{}']", port);
     }
+
 
     public Wrapper addServlet(Servlet servlet) {
         Wrapper wrapper = new DefaultWrapper(servlet);

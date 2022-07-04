@@ -14,6 +14,8 @@ public class DefaultServletOutputStream extends ServletOutputStream {
 
     private final ByteBuf buf;
 
+    // private final int
+
     public DefaultServletOutputStream(ByteBuf buf) {
         this.buf = buf;
     }
@@ -32,4 +34,6 @@ public class DefaultServletOutputStream extends ServletOutputStream {
     public void write(int b) throws IOException {
         this.buf.writeByte(b);
     }
+
+
 }

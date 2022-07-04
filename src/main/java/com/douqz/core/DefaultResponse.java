@@ -16,7 +16,9 @@ import java.util.Locale;
  */
 public class DefaultResponse implements HttpServletResponse {
     private final FullHttpResponse resp;
+
     private final DefaultPrintWriter writer;
+
     private final DefaultServletOutputStream outputStream;
 
     public DefaultResponse(FullHttpResponse resp) {

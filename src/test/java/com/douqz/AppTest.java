@@ -45,6 +45,7 @@ public class AppTest {
         //AbstractHttp11Protocol abstractHttp11Protocol = (AbstractHttp11Protocol)(tomcat.getConnector().getProtocolHandler());
         //abstractHttp11Protocol.setMaxKeepAliveRequests(1);
         tomcat.addServlet(contextPath, "test1", new TestServlet1());
+
         context.addServletMappingDecoded("/test1", "test1");
         tomcat.addServlet(contextPath, "test2", new TestServlet2());
         context.addServletMappingDecoded("/test2", "test2");
@@ -54,9 +55,6 @@ public class AppTest {
 
     @Test
     public void testAyumu() throws Exception {
-        // ByteBuf buffer = ByteBufAllocator.DEFAULT.buffer();
-        // buffer.writeByte('T');
-        // Util.printByteBuf(buffer);
         HttpServer server = new HttpServer();
         DefaultContext context = new DefaultContext();
         server.setContext(context);
@@ -66,5 +64,26 @@ public class AppTest {
         Thread.currentThread().join();
     }
 
+
+    @Test
+    public void commonTest() throws Exception {
+        long start = System.currentTimeMillis();
+        int total = 1024 * 1024 * 100;
+        ByteBuf buf = ByteBufAllocator.DEFAULT.buffer();
+        // for (int i = 0; i < total; i++) {
+        //     buf.writeByte('a');
+        // }
+        for (int i = 0; i < 1024 * 100; i++) {
+            byte[] bytes = new byte[1024];
+            for (int j = 0; j < 1024; j++) {
+                bytes[j] = 'a';
+            }
+            buf.writeBytes(bytes);
+        }
+
+        long end = System.currentTimeMillis();
+        long l = end - start;
+        System.out.println();
+    }
 
 }

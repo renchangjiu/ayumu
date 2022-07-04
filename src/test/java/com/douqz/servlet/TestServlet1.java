@@ -1,14 +1,17 @@
 package com.douqz.servlet;
 
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletOutputStream;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
+import jakarta.servlet.*;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Part;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.tomcat.util.http.fileupload.FileItem;
+import org.apache.tomcat.util.http.fileupload.FileUtils;
+import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
+import org.apache.tomcat.util.http.fileupload.servlet.ServletFileUpload;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,17 +25,22 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author yui
  */
 @Slf4j
 @WebServlet(name = "test1", urlPatterns = "/test1")
+@MultipartConfig
 public class TestServlet1 extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         log.info("doGet");
+        Enumeration<String> parameterNames = req.getParameterNames();
+        Map<String, String[]> parameterMap = req.getParameterMap();
         String a = req.getParameter("a");
+        String[] as = req.getParameterValues("a");
         PrintWriter writer = resp.getWriter();
         Enumeration<String> h1 = req.getHeaders("h1");
         while (h1.hasMoreElements()) {
@@ -41,14 +49,48 @@ public class TestServlet1 extends HttpServlet {
         }
         int serverPort = req.getServerPort();
         int localPort = req.getLocalPort();
+        int contentLength = req.getContentLength();
+        long contentLengthLong = req.getContentLengthLong();
+        String contentType = req.getContentType();
+        ServletInputStream inputStream = req.getInputStream();
+        byte[] bytes = new byte[req.getContentLength()];
+        inputStream.read(bytes);
+        String s = new String(bytes);
+
         writer.write("测试1-中文-Get-" + new Date());
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         log.info("doPost");
+        req.setCharacterEncoding(StandardCharsets.UTF_8.name());
         ServletOutputStream out = resp.getOutputStream();
         String msg = "Test1-中文-Post-" + new Date();
+        Map<String, String[]> parameterMap = req.getParameterMap();
+        String a = req.getParameter("a");
+        String[] as = req.getParameterValues("a");
+        // Part c = req.getPart("c");
+        // String name = c.getName();
+
+        DiskFileItemFactory factory = new DiskFileItemFactory();
+        factory.setDefaultCharset(StandardCharsets.UTF_8.name());
+        ServletFileUpload upload = new ServletFileUpload(factory);
+        upload.setHeaderEncoding(StandardCharsets.UTF_8.name());
+        Map<String, List<FileItem>> parts = upload.parseParameterMap(req);
+        for (Map.Entry<String, List<FileItem>> ent : parts.entrySet()) {
+            String key = ent.getKey();
+            List<FileItem> val = ent.getValue();
+            for (FileItem item : val) {
+                boolean formField = item.isFormField();
+                if (item.isFormField()) {
+                    String string = item.getString();
+                    System.out.println();
+                } else {
+                    System.out.println();
+                }
+
+            }
+        }
         out.write(msg.getBytes(StandardCharsets.UTF_8));
     }
 
