@@ -1,6 +1,8 @@
 package com.douqz.core;
 
 import com.douqz.exception.NotSupportCurrentlyException;
+import com.douqz.util.Cookies;
+import com.douqz.util.Headers;
 import com.douqz.util.Parameters;
 import com.douqz.util.ValuesEnumerator;
 import io.netty.handler.codec.http.FullHttpRequest;
@@ -21,26 +23,32 @@ import java.util.*;
  */
 public class DefaultRequest implements HttpServletRequest {
 
-    private final FullHttpRequest request;
+    protected final FullHttpRequest request;
 
-    private final List<Map.Entry<String, String>> headers;
+    protected int port;
 
-    private int port;
+    protected final ServletInputStream inputStream;
 
-    private final ServletInputStream inputStream;
+    protected final Parameters parameters;
 
-    private final Parameters parameters;
+    protected final Headers headers;
+
+    protected final Cookies cookies;
 
     public DefaultRequest(FullHttpRequest request) {
         this.request = request;
 
         // 解析请求头
-        this.headers = this.request.headers().entries();
+        this.headers = new Headers(this.request.headers());
 
         // 解析请求体
         this.parameters = new Parameters(this.request.content(), this.getContentType());
 
+        // 解析请求的输入流
         this.inputStream = new DefaultServletInputStream(this.request.content(), this.getContentLength());
+
+        // 请求 cookie
+        this.cookies = new Cookies(this.headers.getAll(HttpHeaderNames.COOKIE.toString()));
 
     }
 
@@ -51,41 +59,32 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public Cookie[] getCookies() {
-        throw new NotSupportCurrentlyException();
+        return this.cookies.getCookies();
     }
 
     @Override
     public long getDateHeader(String name) {
-        throw new NotSupportCurrentlyException();
+        return this.headers.getDateHeader(name);
     }
 
     @Override
     public String getHeader(String name) {
-        for (Map.Entry<String, String> ent : headers) {
-            if (ent.getKey().equalsIgnoreCase(name)) {
-                return ent.getValue();
-            }
-        }
-        return null;
+        return this.headers.getHeader(name);
     }
 
     @Override
     public Enumeration<String> getHeaders(String name) {
-        return new ValuesEnumerator<>(this.headers, name);
+        return this.headers.getHeaders(name);
     }
 
     @Override
     public Enumeration<String> getHeaderNames() {
-        throw new NotSupportCurrentlyException();
+        return this.headers.getHeaderNames();
     }
 
     @Override
     public int getIntHeader(String name) {
-        String val = this.getHeader(name);
-        if (val == null) {
-            return -1;
-        }
-        return Integer.parseInt(val);
+        return this.headers.getIntHeader(name);
     }
 
     @Override

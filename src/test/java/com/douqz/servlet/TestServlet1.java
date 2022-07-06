@@ -3,11 +3,9 @@ package com.douqz.servlet;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.Part;
+import jakarta.servlet.http.*;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.apache.tomcat.util.http.fileupload.FileItem;
 import org.apache.tomcat.util.http.fileupload.FileUtils;
 import org.apache.tomcat.util.http.fileupload.disk.DiskFileItemFactory;
@@ -43,6 +41,7 @@ public class TestServlet1 extends HttpServlet {
         String[] as = req.getParameterValues("a");
         PrintWriter writer = resp.getWriter();
         Enumeration<String> h1 = req.getHeaders("h1");
+        Enumeration<String> headerNames = req.getHeaderNames();
         while (h1.hasMoreElements()) {
             String next = h1.nextElement();
             System.out.println(next);
@@ -53,9 +52,9 @@ public class TestServlet1 extends HttpServlet {
         long contentLengthLong = req.getContentLengthLong();
         String contentType = req.getContentType();
         ServletInputStream inputStream = req.getInputStream();
-        byte[] bytes = new byte[req.getContentLength()];
-        inputStream.read(bytes);
-        String s = new String(bytes);
+        String s1 = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
+
+        // Cookie[] cookies = req.getCookies();
 
         writer.write("测试1-中文-Get-" + new Date());
     }

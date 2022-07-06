@@ -45,10 +45,12 @@ public class AppTest {
         //AbstractHttp11Protocol abstractHttp11Protocol = (AbstractHttp11Protocol)(tomcat.getConnector().getProtocolHandler());
         //abstractHttp11Protocol.setMaxKeepAliveRequests(1);
         tomcat.addServlet(contextPath, "test1", new TestServlet1());
+        tomcat.addServlet(contextPath, "test2", new TestServlet2());
 
         context.addServletMappingDecoded("/test1", "test1");
-        tomcat.addServlet(contextPath, "test2", new TestServlet2());
         context.addServletMappingDecoded("/test2", "test2");
+
+        // context.addFilterDef();
         tomcat.start();
         tomcat.getServer().await();
     }
