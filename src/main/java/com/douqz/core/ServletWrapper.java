@@ -7,14 +7,19 @@ import jakarta.servlet.annotation.WebServlet;
 /**
  * @author yui
  */
-public class DefaultWrapper implements Wrapper {
+public class ServletWrapper implements Wrapper<Servlet> {
+
     protected volatile Servlet servlet = null;
 
     protected String name;
+
     protected String[] urlPatterns;
 
-    public DefaultWrapper(Servlet servlet) {
+    protected Context context;
+
+    public ServletWrapper(Servlet servlet, Context context) {
         this.servlet = servlet;
+        this.context = context;
         WebServlet anno = servlet.getClass().getAnnotation(WebServlet.class);
         if (anno == null) {
             throw new NoneWebServletAnnotationException("This servlet no 'WebServlet' Annotation.");
@@ -45,7 +50,12 @@ public class DefaultWrapper implements Wrapper {
     }
 
     @Override
-    public Servlet getServlet() {
+    public Servlet getChild() {
         return servlet;
+    }
+
+    @Override
+    public Context getContext() {
+        return this.context;
     }
 }

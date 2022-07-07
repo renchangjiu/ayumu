@@ -1,6 +1,7 @@
 package com.douqz;
 
 import com.douqz.core.DefaultContext;
+import com.douqz.filter.TestFilter1;
 import com.douqz.servlet.TestServlet1;
 import com.douqz.servlet.TestServlet2;
 import com.douqz.util.Util;
@@ -17,9 +18,12 @@ import org.apache.catalina.LifecycleException;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
+import org.apache.tomcat.util.descriptor.web.FilterDef;
+import org.apache.tomcat.util.descriptor.web.FilterMap;
 import org.junit.Test;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 
 /**
  * Unit test for simple App.
@@ -50,7 +54,6 @@ public class AppTest {
         context.addServletMappingDecoded("/test1", "test1");
         context.addServletMappingDecoded("/test2", "test2");
 
-        // context.addFilterDef();
         tomcat.start();
         tomcat.getServer().await();
     }
@@ -62,6 +65,7 @@ public class AppTest {
         server.setContext(context);
         server.addServlet(new TestServlet1());
         server.addServlet(new TestServlet2());
+        server.addFilter(TestFilter1.class);
         server.start(8080);
         Thread.currentThread().join();
     }

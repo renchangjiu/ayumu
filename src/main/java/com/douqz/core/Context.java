@@ -1,18 +1,24 @@
 package com.douqz.core;
 
 import jakarta.annotation.Nullable;
-import org.apache.catalina.Container;
+import jakarta.servlet.Filter;
 
 import java.util.Collection;
+import java.util.List;
 
 /**
  * @author yui
  */
 public interface Context {
-    void addChild(Wrapper child);
 
-    Collection<Wrapper> findChildren();
+    void addServlet(ServletWrapper child);
+
+    void addFilter(FilterWrapper wrapper);
+
+    Collection<ServletWrapper> findServlets();
 
     @Nullable
-    Wrapper findMatchChild(String uri);
+    ServletWrapper findMatchServlet(String uri);
+
+    List<Filter> findMatchFilters(String uri);
 }

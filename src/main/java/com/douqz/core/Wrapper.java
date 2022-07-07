@@ -5,14 +5,17 @@ import jakarta.servlet.Servlet;
 /**
  * @author yui
  */
-public interface Wrapper {
+public interface Wrapper<T> {
+
     String getName();
 
     String[] getUrlPatterns();
 
     boolean uriMatch(String uri);
 
-    Servlet getServlet();
+    T getChild();
 
-    // void invokeServeltMethod
+
+    Context getContext();
+
 }

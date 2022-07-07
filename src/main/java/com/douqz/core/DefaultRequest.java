@@ -7,6 +7,7 @@ import com.douqz.util.Parameters;
 import com.douqz.util.ValuesEnumerator;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
+import io.netty.handler.codec.http.HttpVersion;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 
@@ -134,12 +135,14 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public String getRequestURI() {
-        return null;
+        return this.request.uri();
     }
 
     @Override
     public StringBuffer getRequestURL() {
-        return null;
+        String uri = this.getRequestURI();
+        // TODO
+        throw new NotSupportCurrentlyException();
     }
 
     @Override
@@ -283,7 +286,8 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public String getScheme() {
-        return null;
+        HttpVersion httpVersion = this.request.protocolVersion();
+        throw new NotSupportCurrentlyException();
     }
 
     @Override

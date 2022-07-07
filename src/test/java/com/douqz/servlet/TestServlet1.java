@@ -56,6 +56,10 @@ public class TestServlet1 extends HttpServlet {
 
         // Cookie[] cookies = req.getCookies();
 
+        String scheme = req.getScheme();
+        String requestURI = req.getRequestURI();
+        StringBuffer requestURL = req.getRequestURL();
+
         writer.write("测试1-中文-Get-" + new Date());
     }
 

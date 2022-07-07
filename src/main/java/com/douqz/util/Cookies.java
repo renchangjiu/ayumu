@@ -27,7 +27,7 @@ public class Cookies {
         }
         this.handleParseCookie();
 
-        Cookie ck = new Cookie();
+        // Cookie ck = new Cookie();
         throw new NotSupportCurrentlyException();
     }
 

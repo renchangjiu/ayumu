@@ -1,8 +1,10 @@
 package com.douqz;
 
 import com.douqz.core.Context;
-import com.douqz.core.DefaultWrapper;
+import com.douqz.core.ServletWrapper;
+import com.douqz.core.FilterWrapper;
 import com.douqz.core.Wrapper;
+import com.douqz.exception.NotSupportCurrentlyException;
 import com.douqz.handler.HttpRequestHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.Channel;
@@ -15,6 +17,7 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.HttpServerCodec;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
+import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
 import lombok.extern.slf4j.Slf4j;
 
@@ -49,21 +52,29 @@ public class HttpServer {
                                 .addLast(LOGGING_HANDLER)
                                 .addLast(new HttpServerCodec())
                                 .addLast(new HttpObjectAggregator(1024 * 1024 * 5))
-                                .addLast(new HttpRequestHandler(HttpServer.this))
-                        ;
+                                .addLast(new HttpRequestHandler(HttpServer.this));
                     }
-                })
-                .bind(new InetSocketAddress(port))
-                .sync()
-                .channel();
+                }).bind(new InetSocketAddress(port)).sync().channel();
         log.info("Starting ProtocolHandler ['http-netty-{}']", port);
     }
 
 
-    public Wrapper addServlet(Servlet servlet) {
-        Wrapper wrapper = new DefaultWrapper(servlet);
-        this.context.addChild(wrapper);
-        return wrapper;
+    public void addServlet(Servlet servlet) {
+        ServletWrapper wrapper = new ServletWrapper(servlet, this.context);
+        this.context.addServlet(wrapper);
+    }
+
+    public void addFilter(Filter filter) {
+        FilterWrapper wrapper = new FilterWrapper(filter, this.context);
+        this.context.addFilter(wrapper);
+    }
+
+    public void addFilter(Class<? extends Filter> filterClass) throws InstantiationException, IllegalAccessException {
+        Filter filter = filterClass.newInstance();
+        // TODO
+        // filter.init();
+        FilterWrapper wrapper = new FilterWrapper(filter, this.context);
+        this.context.addFilter(wrapper);
     }
 
     public void setContext(Context context) {
@@ -72,6 +83,11 @@ public class HttpServer {
 
     public Context getContext() {
         return context;
+    }
+
+
+    public void await() {
+        throw new NotSupportCurrentlyException();
     }
 
     public void close() {
