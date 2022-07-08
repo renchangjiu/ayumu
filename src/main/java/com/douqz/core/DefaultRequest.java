@@ -1,10 +1,7 @@
 package com.douqz.core;
 
 import com.douqz.exception.NotSupportCurrentlyException;
-import com.douqz.util.Cookies;
-import com.douqz.util.Headers;
-import com.douqz.util.Parameters;
-import com.douqz.util.ValuesEnumerator;
+import com.douqz.util.*;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaderNames;
 import io.netty.handler.codec.http.HttpVersion;
@@ -35,6 +32,8 @@ public class DefaultRequest implements HttpServletRequest {
     protected final Headers headers;
 
     protected final Cookies cookies;
+
+    private String characterEncoding = null;
 
     public DefaultRequest(FullHttpRequest request) {
         this.request = request;
@@ -140,9 +139,7 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public StringBuffer getRequestURL() {
-        String uri = this.getRequestURI();
-        // TODO
-        throw new NotSupportCurrentlyException();
+        return RequestUtil.getRequestURL(this);
     }
 
     @Override
@@ -227,12 +224,15 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public String getCharacterEncoding() {
-        return null;
+        if (this.characterEncoding == null) {
+            this.characterEncoding = RequestUtil.getCharsetFromContentType(this.getContentType());
+        }
+        return this.characterEncoding;
     }
 
     @Override
-    public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
-
+    public void setCharacterEncoding(String env) {
+        this.characterEncoding = env;
     }
 
     @Override
@@ -286,13 +286,16 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public String getScheme() {
-        HttpVersion httpVersion = this.request.protocolVersion();
-        throw new NotSupportCurrentlyException();
+        return this.request.protocolVersion().protocolName().toLowerCase();
     }
 
     @Override
     public String getServerName() {
-        return null;
+        String host = this.getHeader(HttpHeaderNames.HOST.toString());
+        if (host == null) {
+            return "";
+        }
+        return host.split(":")[0];
     }
 
     @Override

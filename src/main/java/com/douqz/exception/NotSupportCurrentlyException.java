@@ -6,6 +6,11 @@ package com.douqz.exception;
  * @author yui
  */
 public class NotSupportCurrentlyException extends RuntimeException {
+
+    public NotSupportCurrentlyException(String message) {
+        super("Currently not supported this method: " + message);
+    }
+
     public NotSupportCurrentlyException() {
         super("Currently not supported this method.");
     }

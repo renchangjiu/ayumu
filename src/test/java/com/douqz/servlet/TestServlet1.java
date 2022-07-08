@@ -57,9 +57,12 @@ public class TestServlet1 extends HttpServlet {
         // Cookie[] cookies = req.getCookies();
 
         String scheme = req.getScheme();
+        String serverName = req.getServerName();
         String requestURI = req.getRequestURI();
         StringBuffer requestURL = req.getRequestURL();
 
+
+        String characterEncoding = req.getCharacterEncoding();
         writer.write("测试1-中文-Get-" + new Date());
     }
 
@@ -75,25 +78,28 @@ public class TestServlet1 extends HttpServlet {
         // Part c = req.getPart("c");
         // String name = c.getName();
 
-        DiskFileItemFactory factory = new DiskFileItemFactory();
-        factory.setDefaultCharset(StandardCharsets.UTF_8.name());
-        ServletFileUpload upload = new ServletFileUpload(factory);
-        upload.setHeaderEncoding(StandardCharsets.UTF_8.name());
-        Map<String, List<FileItem>> parts = upload.parseParameterMap(req);
-        for (Map.Entry<String, List<FileItem>> ent : parts.entrySet()) {
-            String key = ent.getKey();
-            List<FileItem> val = ent.getValue();
-            for (FileItem item : val) {
-                boolean formField = item.isFormField();
-                if (item.isFormField()) {
-                    String string = item.getString();
-                    System.out.println();
-                } else {
-                    System.out.println();
-                }
+        // DiskFileItemFactory factory = new DiskFileItemFactory();
+        // factory.setDefaultCharset(StandardCharsets.UTF_8.name());
+        // ServletFileUpload upload = new ServletFileUpload(factory);
+        // upload.setHeaderEncoding(StandardCharsets.UTF_8.name());
+        // Map<String, List<FileItem>> parts = upload.parseParameterMap(req);
+        // for (Map.Entry<String, List<FileItem>> ent : parts.entrySet()) {
+        //     String key = ent.getKey();
+        //     List<FileItem> val = ent.getValue();
+        //     for (FileItem item : val) {
+        //         boolean formField = item.isFormField();
+        //         if (item.isFormField()) {
+        //             String string = item.getString();
+        //             System.out.println();
+        //         } else {
+        //             System.out.println();
+        //         }
+        //
+        //     }
+        // }
+        String contentType = req.getContentType();
+        String characterEncoding = req.getCharacterEncoding();
 
-            }
-        }
         out.write(msg.getBytes(StandardCharsets.UTF_8));
     }
 
