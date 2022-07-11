@@ -32,6 +32,12 @@ import java.util.Map;
 @WebServlet(name = "test1", urlPatterns = "/test1")
 @MultipartConfig
 public class TestServlet1 extends HttpServlet {
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+    }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         log.info("doGet");

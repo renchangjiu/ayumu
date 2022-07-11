@@ -27,9 +27,9 @@ public class FilterWrapper implements Wrapper<Filter> {
         if (anno == null) {
             throw new NoneWebServletAnnotationException("This servlet no 'WebFilter' Annotation.");
         }
-        if (StringUtils.isNotEmpty(anno.filterName())) {
-            this.name = anno.filterName();
-        } else {
+
+        this.name = anno.filterName();
+        if (StringUtils.isEmpty(this.name)) {
             this.name = clazz.getSimpleName();
         }
 

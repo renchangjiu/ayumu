@@ -45,7 +45,7 @@ public class DefaultRequest implements HttpServletRequest {
         this.parameters = new Parameters(this.request.content(), this.getContentType());
 
         // 解析请求的输入流
-        this.inputStream = new DefaultServletInputStream(this.request.content(), this.getContentLength());
+        this.inputStream = new DefaultServletInputStream(this.request.content(), this.getContentLengthLong());
 
         // 请求 cookie
         this.cookies = new Cookies(this.headers.getAll(HttpHeaderNames.COOKIE.toString()));
@@ -237,12 +237,12 @@ public class DefaultRequest implements HttpServletRequest {
 
     @Override
     public int getContentLength() {
-        return this.request.headers().getInt(HttpHeaderNames.CONTENT_LENGTH, -1);
+        return this.getIntHeader(HttpHeaderNames.CONTENT_LANGUAGE.toString());
     }
 
     @Override
     public long getContentLengthLong() {
-        String len = this.request.headers().get(HttpHeaderNames.CONTENT_LENGTH);
+        String len = this.getHeader(HttpHeaderNames.CONTENT_LENGTH.toString());
         if (len == null) {
             return -1;
         }

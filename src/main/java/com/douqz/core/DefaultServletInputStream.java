@@ -1,7 +1,6 @@
 package com.douqz.core;
 
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import jakarta.servlet.ReadListener;
 import jakarta.servlet.ServletInputStream;
 
@@ -14,9 +13,9 @@ public class DefaultServletInputStream extends ServletInputStream {
 
     private final ByteBuf buf;
 
-    private final int contentLength;
+    private final long contentLength;
 
-    public DefaultServletInputStream(ByteBuf buf, int contentLength) {
+    public DefaultServletInputStream(ByteBuf buf, long contentLength) {
         this.buf = buf;
         this.contentLength = contentLength;
     }

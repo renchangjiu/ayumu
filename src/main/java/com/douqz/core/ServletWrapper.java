@@ -1,30 +1,36 @@
 package com.douqz.core;
 
-import com.douqz.exception.NoneWebServletAnnotationException;
 import jakarta.servlet.Servlet;
 import jakarta.servlet.annotation.WebServlet;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author yui
  */
 public class ServletWrapper implements Wrapper<Servlet> {
 
-    protected volatile Servlet servlet = null;
+    private final Servlet servlet;
 
-    protected String name;
+    private String name;
 
-    protected String[] urlPatterns;
+    private final String[] urlPatterns;
 
-    protected Context context;
+    private final Context context;
 
     public ServletWrapper(Servlet servlet, Context context) {
         this.servlet = servlet;
         this.context = context;
-        WebServlet anno = servlet.getClass().getAnnotation(WebServlet.class);
+        Class<? extends Servlet> clazz = servlet.getClass();
+        WebServlet anno = clazz.getAnnotation(WebServlet.class);
         if (anno == null) {
-            throw new NoneWebServletAnnotationException("This servlet no 'WebServlet' Annotation.");
+            throw new IllegalStateException("Servlet class no 'WebServlet' Annotation.");
         }
+
         this.name = anno.name();
+        if (StringUtils.isEmpty(this.name)) {
+            this.name = clazz.getSimpleName();
+        }
+
         this.urlPatterns = anno.urlPatterns();
     }
 
