@@ -1,5 +1,6 @@
 package com.douqz.core;
 
+import com.douqz.util.UrlPatterns;
 import jakarta.annotation.Nullable;
 import jakarta.servlet.Filter;
 import jakarta.servlet.Servlet;
@@ -13,14 +14,20 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DefaultContext implements Context {
 
     /**
-     * servlets
+     * name -> wrapper
      */
-    protected final Map<String, ServletWrapper> servlets = new ConcurrentHashMap<>();
+    protected final Map<String, ServletWrapper> servlets = new HashMap<>();
 
     /**
-     * filters
+     * name -> wrapper
      */
-    protected final Map<String, FilterWrapper> filters = new ConcurrentHashMap<>();
+    protected final Map<String, FilterWrapper> filters = new HashMap<>();
+
+    protected final UrlPatterns urlPatterns;
+
+    public DefaultContext() {
+        this.urlPatterns = new UrlPatterns();
+    }
 
     @Override
     public void addServlet(ServletWrapper wrapper) {
@@ -41,6 +48,7 @@ public class DefaultContext implements Context {
                     throw new IllegalStateException("Servlet's name already exists.");
                 }
             }
+            this.urlPatterns.add(wrapper);
             this.servlets.put(wrapper.getName(), wrapper);
         }
     }
@@ -79,13 +87,7 @@ public class DefaultContext implements Context {
     @Override
     @Nullable
     public ServletWrapper findMatchServlet(String uri) {
-        for (Map.Entry<String, ServletWrapper> ent : servlets.entrySet()) {
-            ServletWrapper val = ent.getValue();
-            if (val.uriMatch(uri)) {
-                return val;
-            }
-        }
-        return null;
+        return this.urlPatterns.findMatchServlet(uri);
     }
 
     @Override

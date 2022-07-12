@@ -52,7 +52,10 @@ public class AppTest {
         tomcat.addServlet(contextPath, "test2", new TestServlet2());
 
         context.addServletMappingDecoded("/test1", "test1");
-        context.addServletMappingDecoded("/test2", "test2");
+        context.addServletMappingDecoded("/a.do", "test2");
+        context.addServletMappingDecoded("/b.do", "test2");
+        // context.addServletMappingDecoded("/b/*.do", "test2");
+        context.addServletMappingDecoded("/b/*", "test2");
 
         tomcat.start();
         tomcat.getServer().await();
